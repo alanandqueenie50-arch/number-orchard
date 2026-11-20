@@ -62,15 +62,14 @@ h1 { font-size: clamp(23px, 5.5vw, 36px); font-weight: 900; line-height: 1.13; }
   background: #fffdf9;
   box-shadow: 4px 5px 0 var(--ink);
 }
-.controls, .status {
+.status {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
 }
-.modes { display: flex; gap: 5px; }
-button, select {
+button {
   font: inherit;
   color: inherit;
   min-height: 44px;
@@ -82,11 +81,31 @@ button, select {
 }
 button { cursor: pointer; touch-action: manipulation; }
 button:not(:disabled):active { transform: translateY(2px); }
-button:focus-visible, select:focus-visible, [tabindex="-1"]:focus-visible {
+button:focus-visible, [tabindex="-1"]:focus-visible {
   outline: 3px dashed var(--purple);
   outline-offset: 4px;
 }
-button[aria-pressed="true"], .primary { background: var(--purple); color: #fff; }
+.primary { background: var(--purple); color: #fff; }
+.difficulties {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(5px, 2vw, 11px);
+}
+.difficulty {
+  display: grid;
+  align-content: center;
+  gap: 1px;
+  min-height: clamp(63px, 11vw, 77px);
+  padding: 5px 2px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.difficulty strong { font-size: clamp(15px, 4vw, 24px); line-height: 1.15; }
+.difficulty small { font-size: clamp(11px, 2.8vw, 13px); }
+.difficulty[data-limit="10"] { background: #ffdc58; }
+.difficulty[data-limit="20"] { background: #65d7ff; }
+.difficulty[data-limit="100"] { background: #ff636c; }
+.difficulty[aria-pressed="true"] { box-shadow: inset 0 0 0 2px #fffdf9, 0 3px 0 var(--ink); }
+.difficulty[aria-pressed="true"] strong::before { content: "✓ "; }
 .voice { background: #fff; flex: none; font-size: 14px; }
 .voice[aria-pressed="true"] { background: var(--mint); color: var(--ink); }
 .status { margin: 15px 0 6px; font-weight: 800; font-size: 15px; }
@@ -100,6 +119,7 @@ progress::-moz-progress-bar { background: #8153ef; border-radius: 20px; }
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: clamp(6px, 3vw, 17px);
 }
 h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
@@ -201,7 +221,6 @@ h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
   main { width: calc(100% - 20px); margin-top: 14px; }
   .hero { padding: 13px 9px; }
   .voice { padding-inline: 6px; font-size: 13px; }
-  .controls button, .controls select { padding-inline: 7px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0s !important; }
@@ -219,17 +238,16 @@ h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
     <button type="button" id="voice" class="voice" aria-label="語音" aria-pressed="false">🔇 語音</button>
   </header>
   <section class="card" aria-label="加減法練習">
-    <div class="controls">
-      <div class="modes" role="group" aria-label="題型">
-        <button type="button" data-mode="mixed" aria-pressed="true">混合</button>
-        <button type="button" data-mode="add" aria-pressed="false">加法</button>
-        <button type="button" data-mode="subtract" aria-pressed="false">減法</button>
-      </div>
-      <select id="limit" aria-label="遊戲難度">
-        <option value="10" selected>Easy · 10 以內</option>
-        <option value="20">Medium · 20 以內</option>
-        <option value="100">Hard · 100 以內</option>
-      </select>
+    <div class="difficulties" role="group" aria-label="遊戲難度">
+      <button type="button" class="difficulty" data-limit="10" aria-pressed="true">
+        <strong>Easy</strong><small>10 以內</small>
+      </button>
+      <button type="button" class="difficulty" data-limit="20" aria-pressed="false">
+        <strong>Medium</strong><small>20 以內</small>
+      </button>
+      <button type="button" class="difficulty" data-limit="100" aria-pressed="false">
+        <strong>Hard</strong><small>100 以內</small>
+      </button>
     </div>
     <div class="status"><span id="round"></span><span id="stars"></span></div>
     <progress id="progress" max="10" value="0" aria-label="答題進度"></progress>
@@ -243,7 +261,6 @@ h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
       <p id="instruction">選一個答案</p>
       <div class="options" id="options" role="group" aria-labelledby="instruction"></div>
       <p id="feedback" class="feedback" role="status"></p>
-      <button type="button" id="next" class="primary" hidden>下一題</button>
     </div>
     <div class="result" id="result" hidden>
       <span class="result-icon" aria-hidden="true">🏆</span>
@@ -260,14 +277,16 @@ h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
 "use strict";
 
 const roundSize = 10;
+const answerPauseMs = 2200;
 const ui = Object.fromEntries(
-  ["limit", "round", "stars", "progress", "play", "equation", "fruit-board",
-    "options", "feedback", "next", "result", "result-title", "summary", "restart",
+  ["round", "stars", "progress", "play", "equation", "fruit-board",
+    "options", "feedback", "result", "result-title", "summary", "restart",
     "voice", "hear", "confetti", "voice-status", "visual-hint"]
     .map(id => [id, document.getElementById(id)])
 );
-const modeButtons = document.querySelectorAll("[data-mode]");
-let mode = "mixed";
+const difficultyButtons = document.querySelectorAll("[data-limit]");
+let limit = 10;
+let nextQuestionTimer;
 let questions = [];
 let index = 0;
 let score = 0;
@@ -359,7 +378,7 @@ function shuffle(items) {
 }
 
 function newRound(focus = false) {
-  const limit = Number(ui.limit.value);
+  clearTimeout(nextQuestionTimer);
   const additions = [];
   const subtractions = [];
   for (let a = 0; a <= limit; a++) {
@@ -370,11 +389,8 @@ function newRound(focus = false) {
   }
   shuffle(additions);
   shuffle(subtractions);
-  if (mode === "mixed") {
-    questions = shuffle([...additions.slice(0, 5), ...subtractions.slice(0, 5)]);
-  } else {
-    questions = (mode === "add" ? additions : subtractions).slice(0, roundSize);
-  }
+  const half = roundSize / 2;
+  questions = shuffle([...additions.slice(0, half), ...subtractions.slice(0, half)]);
   index = 0;
   score = 0;
   ui.play.hidden = false;
@@ -423,7 +439,6 @@ function showQuestion(focus) {
   const {a, b, sign, answer} = questions[index];
   const add = sign === "+";
   const fruit = fruitTypes[index % fruitTypes.length];
-  const limit = Number(ui.limit.value);
   const grouped = limit === 100;
   ui["visual-hint"].hidden = !grouped;
   answered = false;
@@ -444,8 +459,6 @@ function showQuestion(focus) {
   }
   ui.options.replaceChildren();
   ui.feedback.textContent = "";
-  ui.next.hidden = true;
-  ui.next.textContent = index === roundSize - 1 ? "看結果" : "下一題";
   const candidates = [-10, -5, -3, -2, -1, 1, 2, 3, 5, 10]
     .map(offset => answer + offset)
     .filter(choice => choice >= 0 && choice <= limit);
@@ -480,11 +493,10 @@ function checkAnswer(button, correct) {
   ui.feedback.textContent = cheer + " ⭐";
   celebrate();
   speak(cheer);
-  ui.next.hidden = false;
-  ui.next.focus();
+  nextQuestionTimer = setTimeout(advanceQuestion, answerPauseMs);
 }
 
-ui.next.addEventListener("click", () => {
+function advanceQuestion() {
   index++;
   if (index < roundSize) {
     showQuestion(true);
@@ -497,7 +509,7 @@ ui.next.addEventListener("click", () => {
   ui["result-title"].focus();
   celebrate();
   speak("闖關完成！你收集到十顆星，太棒了！");
-});
+}
 
 ui.voice.addEventListener("click", () => {
   setVoice(!voiceEnabled);
@@ -509,17 +521,17 @@ ui.hear.addEventListener("click", () => {
   readQuestion();
 });
 
-for (const button of modeButtons) {
+for (const button of difficultyButtons) {
   button.addEventListener("click", () => {
-    if (button.dataset.mode === mode) return;
-    mode = button.dataset.mode;
-    for (const item of modeButtons) {
+    const selectedLimit = Number(button.dataset.limit);
+    if (selectedLimit === limit) return;
+    limit = selectedLimit;
+    for (const item of difficultyButtons) {
       item.setAttribute("aria-pressed", String(item === button));
     }
     newRound();
   });
 }
-ui.limit.addEventListener("change", () => newRound());
 ui.restart.addEventListener("click", () => newRound(true));
 newRound();
 </script>
