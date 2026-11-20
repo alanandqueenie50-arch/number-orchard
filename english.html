@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#fff8ec">
-<meta name="description" content="看圖聽發音，玩遊戲認識 24 個生活英文單字。">
+<meta name="description" content="看圖聽發音，玩遊戲認識 100 個英文單字。">
 <title>英文單字探險｜小小練習島</title>
 <style>
 :root {
@@ -42,7 +42,7 @@ button {
   touch-action: manipulation;
 }
 button:active:not(:disabled) { transform: translateY(2px); }
-a:focus-visible, button:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px dashed var(--navy); outline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px dashed var(--navy); outline-offset: 3px; }
 .back { display: inline-block; padding: 9px 0; font-weight: 850; text-decoration: none; }
 .hero {
   display: flex;
@@ -77,10 +77,13 @@ h1 { font-size: clamp(26px, 7vw, 44px); line-height: 1.14; font-weight: 950; }
   box-shadow: 4px 5px 0 var(--ink);
 }
 .activities, .answers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.activities { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 520px) { .activities { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .activity { padding-inline: 3px; font-size: clamp(13px, 3.7vw, 19px); min-height: 56px; }
 .activity:nth-child(1) { background: var(--yellow); }
 .activity:nth-child(2) { background: var(--blue); }
 .activity:nth-child(3) { background: var(--pink); }
+.activity:nth-child(4) { background: var(--mint); }
 .activity[aria-pressed="true"] { box-shadow: inset 0 0 0 2px #fffdfa, 0 3px 0 var(--ink); }
 .activity[aria-pressed="true"]::before { content: "✓ "; }
 .status { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 14px 0 7px; font-size: 14px; font-weight: 850; }
@@ -101,6 +104,7 @@ h2 { font-weight: 950; font-size: clamp(20px, 5vw, 28px); }
 }
 #picture, .trophy { font-size: clamp(50px, 16vw, 86px); line-height: 1.12; }
 #word { font-size: clamp(29px, 10vw, 50px); font-weight: 950; line-height: 1.13; overflow-wrap: anywhere; }
+#sentence { padding: 5px; font-size: clamp(21px, 5.5vw, 31px); font-weight: 900; }
 #meaning { margin-top: 4px; font-weight: 750; }
 .sound-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 9px; }
 .sound-tools button { background: var(--mint); }
@@ -118,12 +122,14 @@ h2 { font-weight: 950; font-size: clamp(20px, 5vw, 28px); }
 #audio-status { margin-top: 6px; font-size: 13px; }
 details { margin-top: 15px; }
 summary { font-weight: 850; cursor: pointer; }
+#word-search { margin-top: 9px; width: 100%; min-height: 44px; padding: 7px 10px; border: 2px solid var(--ink); border-radius: 12px; font: inherit; }
+#no-matches { margin-top: 7px; }
 .wordbank { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 5px; margin-top: 8px; }
 .wordbank button { padding-inline: 4px; background: #e5f8f2; font-size: 14px; }
 [hidden] { display: none !important; }
 </style>
-<script src="./english-audio.js" defer></script>
-<script src="./english.js" defer></script>
+<script src="./english-audio.js?v=grade1" defer></script>
+<script src="./english.js?v=grade1" defer></script>
 </head>
 <body>
 <main>
@@ -137,6 +143,7 @@ summary { font-weight: 850; cursor: pointer; }
       <button type="button" class="activity" data-mode="repeat" aria-pressed="true">看圖跟念</button>
       <button type="button" class="activity" data-mode="listen" aria-pressed="false">聽音選圖</button>
       <button type="button" class="activity" data-mode="read" aria-pressed="false">看圖選字</button>
+      <button type="button" class="activity" data-mode="sentence" aria-pressed="false">短句填空</button>
     </div>
     <div class="status"><span id="round"></span><span id="stars"></span></div>
     <progress id="progress" aria-label="探險進度" value="0" max="5"></progress>
@@ -145,6 +152,7 @@ summary { font-weight: 850; cursor: pointer; }
       <div class="clue" id="clue">
         <div id="picture" role="img"></div>
         <p id="word" lang="en"></p>
+        <p id="sentence" lang="en" hidden></p>
         <p id="meaning"></p>
       </div>
       <div class="sound-tools" id="sound-tools">
@@ -165,7 +173,9 @@ summary { font-weight: 850; cursor: pointer; }
     <audio id="audio" preload="none" hidden></audio>
     <noscript>請開啟 JavaScript 開始玩。</noscript>
     <details id="wordbank-area">
-      <summary>點聽全部 24 個單字</summary>
+      <summary>點聽全部 100 個單字</summary>
+      <input type="search" id="word-search" aria-label="搜尋單字" placeholder="輸入英文或中文搜尋">
+      <p id="no-matches" role="status" hidden>找不到這個單字。</p>
       <div class="wordbank" id="wordbank"></div>
     </details>
   </section>
