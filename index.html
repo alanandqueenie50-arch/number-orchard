@@ -108,8 +108,8 @@ h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  min-height: 84px;
+  gap: clamp(5px, 2vw, 12px);
+  min-height: 100px;
   margin: 10px 0;
   border: 2px dashed #9270d4;
   border-radius: 20px;
@@ -118,14 +118,37 @@ h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
   font-weight: 850;
 }
 .fruit-group {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1em));
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 3px;
-  font-size: clamp(18px, 5vw, 29px);
-  line-height: 1.2;
+  gap: 4px;
+  max-width: min(100%, 9.1em);
+  font-size: clamp(26px, 6.6vw, 43px);
+  line-height: 1.16;
 }
-.fruit-group.add { display: flex; flex-wrap: wrap; max-width: 5.5em; }
+.fruit-group.add { max-width: min(45%, 5.65em); }
+.fruit { display: inline-block; text-align: center; width: 1.08em; }
+.fruit-box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  align-self: center;
+  padding: 3px 5px;
+  border: 2px solid #b180d5;
+  border-radius: 10px;
+  background: #fffdf9;
+  font-size: .67em;
+}
+.fruit-box small { font-size: .6em; white-space: nowrap; }
+.fruit-box .remaining {
+  color: #642052;
+  background: #ffd2e7;
+  border-radius: 4px;
+  padding: 1px 3px;
+}
+.fruit-box.removed { width: auto; }
+.visual-hint { margin: -3px 0 8px; font-size: 13px; font-weight: 700; }
 .fruit { position: relative; }
 .removed { opacity: .55; }
 .removed::after {
@@ -202,7 +225,11 @@ h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
         <button type="button" data-mode="add" aria-pressed="false">加法</button>
         <button type="button" data-mode="subtract" aria-pressed="false">減法</button>
       </div>
-      <select id="limit" aria-label="數字範圍"><option value="5">5 以內</option><option value="10" selected>10 以內</option></select>
+      <select id="limit" aria-label="遊戲難度">
+        <option value="10" selected>Easy · 10 以內</option>
+        <option value="20">Medium · 20 以內</option>
+        <option value="100">Hard · 100 以內</option>
+      </select>
     </div>
     <div class="status"><span id="round"></span><span id="stars"></span></div>
     <progress id="progress" max="10" value="0" aria-label="答題進度"></progress>
@@ -212,6 +239,7 @@ h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
         <button type="button" id="hear">🔊 念題</button>
       </div>
       <div class="fruit-board" id="fruit-board" role="img"></div>
+      <p id="visual-hint" class="visual-hint" hidden>每盒有 10 顆水果</p>
       <p id="instruction">選一個答案</p>
       <div class="options" id="options" role="group" aria-labelledby="instruction"></div>
       <p id="feedback" class="feedback" role="status"></p>
@@ -235,7 +263,7 @@ const roundSize = 10;
 const ui = Object.fromEntries(
   ["limit", "round", "stars", "progress", "play", "equation", "fruit-board",
     "options", "feedback", "next", "result", "result-title", "summary", "restart",
-    "voice", "hear", "confetti", "voice-status"]
+    "voice", "hear", "confetti", "voice-status", "visual-hint"]
     .map(id => [id, document.getElementById(id)])
 );
 const modeButtons = document.querySelectorAll("[data-mode]");
@@ -355,16 +383,36 @@ function newRound(focus = false) {
   readQuestion();
 }
 
-function fruitGroup(fruitType, count, removed = 0, isAdd = false) {
+function fruitGroup(fruitType, count, removed, grouped, isAdd = false) {
   const group = document.createElement("span");
   group.className = isAdd ? "fruit-group add" : "fruit-group";
   if (count === 0) {
     group.textContent = "0";
     return group;
   }
-  for (let i = 0; i < count; i++) {
+
+  const kept = count - removed;
+  const boxes = grouped ? Math.floor(count / 10) : 0;
+  for (let i = 0; i < boxes; i++) {
+    const box = document.createElement("span");
+    box.className = "fruit-box";
+    box.textContent = fruitType.symbol;
+    const label = document.createElement("small");
+    const keptInBox = Math.max(0, Math.min(10, kept - i * 10));
+    if (keptInBox === 0) box.classList.add("removed");
+    if (keptInBox > 0 && keptInBox < 10) {
+      label.className = "remaining";
+      label.textContent = "剩 " + keptInBox;
+    } else {
+      label.textContent = "×10";
+    }
+    box.append(label);
+    group.append(box);
+  }
+
+  for (let i = boxes * 10; i < count; i++) {
     const fruit = document.createElement("span");
-    fruit.className = i >= count - removed ? "fruit removed" : "fruit";
+    fruit.className = i >= kept ? "fruit removed" : "fruit";
     fruit.textContent = fruitType.symbol;
     group.append(fruit);
   }
@@ -375,6 +423,9 @@ function showQuestion(focus) {
   const {a, b, sign, answer} = questions[index];
   const add = sign === "+";
   const fruit = fruitTypes[index % fruitTypes.length];
+  const limit = Number(ui.limit.value);
+  const grouped = limit === 100;
+  ui["visual-hint"].hidden = !grouped;
   answered = false;
   ui.confetti.replaceChildren();
   ui.round.textContent = "第 " + (index + 1) + " / " + roundSize + " 題";
@@ -385,18 +436,19 @@ function showQuestion(focus) {
   if (add) {
     const plus = document.createElement("span");
     plus.textContent = "+";
-    ui["fruit-board"].append(fruitGroup(fruit, a, 0, true), plus, fruitGroup(fruit, b, 0, true));
+    ui["fruit-board"].append(fruitGroup(fruit, a, 0, grouped, true), plus, fruitGroup(fruit, b, 0, grouped, true));
     ui["fruit-board"].setAttribute("aria-label", a + " 顆" + fruit.name + "，再加 " + b + " 顆");
   } else {
-    ui["fruit-board"].append(fruitGroup(fruit, a, b));
+    ui["fruit-board"].append(fruitGroup(fruit, a, b, grouped));
     ui["fruit-board"].setAttribute("aria-label", a + " 顆" + fruit.name + "，劃掉 " + b + " 顆");
   }
   ui.options.replaceChildren();
   ui.feedback.textContent = "";
   ui.next.hidden = true;
   ui.next.textContent = index === roundSize - 1 ? "看結果" : "下一題";
-  const candidates = Array.from({length: Number(ui.limit.value) + 1}, (_, n) => n)
-    .filter(n => n !== answer);
+  const candidates = [-10, -5, -3, -2, -1, 1, 2, 3, 5, 10]
+    .map(offset => answer + offset)
+    .filter(choice => choice >= 0 && choice <= limit);
   const choices = shuffle([answer, ...shuffle(candidates).slice(0, 2)]);
   for (const choice of choices) {
     const button = document.createElement("button");
