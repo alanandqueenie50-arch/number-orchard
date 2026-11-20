@@ -40,6 +40,10 @@ h2{margin:11px 0 8px;font-size:clamp(23px,5.5vw,32px);font-weight:950}
 .names{margin:9px 0;font-weight:900}
 .names strong{display:block;font-size:clamp(22px,6vw,34px)}
 .names span{font-size:17px}
+.pronunciation{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:9px}
+.pronunciation button:first-child{background:var(--mint)}
+.pronunciation button:last-child{background:var(--blue)}
+#voice-status{margin-top:7px;font-size:13px;font-weight:650}
 .travel button:first-child{background:var(--blue)}
 .travel button:last-child{background:var(--mint)}
 #destination{width:100%;margin-top:8px}
@@ -75,7 +79,14 @@ footer{margin:13px 3px 0;font-size:12px;color:#51486a}
   <div id="game">
     <h2 id="prompt" tabindex="-1" hidden>這是哪一國的國旗？</h2>
     <div class="flag-frame"><img id="flag" alt=""></div>
-    <div class="names" id="names"><strong id="chinese"></strong><span id="english" lang="en"></span></div>
+    <div class="names" id="names">
+      <strong id="chinese"></strong><span id="english" lang="en"></span>
+      <div class="pronunciation" role="group" aria-label="聽國名">
+        <button type="button" id="speak-zh">🔊 念中文</button>
+        <button type="button" id="speak-en">🔊 念英文</button>
+      </div>
+      <p id="voice-status" role="status" hidden></p>
+    </div>
     <div id="study-controls">
       <div class="travel">
         <button type="button" id="previous">← 上一面</button>
@@ -85,6 +96,7 @@ footer{margin:13px 3px 0;font-size:12px;color:#51486a}
     </div>
     <div class="answers" id="answers" role="group" aria-label="選擇國家" hidden></div>
     <p id="feedback" role="status"></p>
+    <button class="primary" type="button" id="continue" hidden>下一題 →</button>
   </div>
   <div id="finish" hidden>
     <span class="stamp" aria-hidden="true">🏅</span>
@@ -296,7 +308,7 @@ const collection = [
 const ui = Object.fromEntries([
   "study-mode", "quiz-mode", "position", "score", "progress", "game", "prompt", "flag", "names",
   "chinese", "english", "study-controls", "previous", "next", "destination", "answers", "feedback",
-  "finish", "finish-title", "restart"
+  "finish", "finish-title", "restart", "speak-zh", "speak-en", "voice-status", "continue"
 ].map(id => [id, document.getElementById(id)]));
 
 const roundSize = 5;
@@ -306,6 +318,8 @@ let questions = [];
 let index = 0;
 let answered = false;
 let nextTimer;
+let speechRequest = 0;
+const speech = window.speechSynthesis;
 
 function shuffled(items) {
   const list = [...items];
@@ -316,7 +330,50 @@ function shuffled(items) {
   return list;
 }
 
+function stopSpeech() {
+  speechRequest++;
+  speech?.cancel();
+  ui["voice-status"].hidden = true;
+}
+
+function speakName(language, name) {
+  if (ui.names.hidden || ui.game.hidden) return;
+  stopSpeech();
+  if (mode === "quiz") {
+    clearTimeout(nextTimer);
+    ui.continue.hidden = false;
+    ui.continue.textContent = index + 1 < roundSize ? "下一題 →" : "看結果 →";
+  }
+
+  const request = speechRequest;
+  function showUnavailable() {
+    if (request !== speechRequest) return;
+    ui["voice-status"].textContent = "這個裝置目前無法念出國名。";
+    ui["voice-status"].hidden = false;
+  }
+  if (!speech || !window.SpeechSynthesisUtterance) {
+    showUnavailable();
+    return;
+  }
+  const utterance = new window.SpeechSynthesisUtterance(name);
+  const voices = speech.getVoices();
+  const localeOf = voice => voice.lang.toLowerCase().replaceAll("_", "-");
+  const exactLocale = language.toLowerCase();
+  const languagePrefix = exactLocale.split("-")[0];
+  const chosen = voices.find(voice => localeOf(voice) === exactLocale ||
+    (exactLocale === "zh-tw" && localeOf(voice) === "zh-hant-tw")) ||
+    voices.find(voice => localeOf(voice).split("-")[0] === languagePrefix);
+  utterance.lang = language;
+  if (chosen) utterance.voice = chosen;
+  utterance.rate = 0.83;
+  utterance.onerror = error => {
+    if (!["canceled", "interrupted"].includes(error.error)) showUnavailable();
+  };
+  speech.speak(utterance);
+}
+
 function showFlag(item) {
+  stopSpeech();
   ui.flag.src = item.image;
   ui.flag.alt = mode === "study" ? item.chinese + "的旗幟" : "請辨認這面國旗";
   ui.flag.className = item.code === "ch" ? "square" : "";
@@ -340,6 +397,7 @@ function showQuestion(focus = false) {
   const question = questions[index];
   answered = false;
   ui.names.hidden = true;
+  ui.continue.hidden = true;
   ui.position.textContent = "第 " + (index + 1) + " / " + roundSize + " 題";
   ui.feedback.textContent = "";
   showFlag(question);
@@ -371,16 +429,20 @@ function answer(button, correct) {
   ui.flag.alt = questions[index].chinese + "的旗幟";
   ui.feedback.textContent = "答對了！拿到一枚旅行印章 ⭐";
   updateScore(index + 1);
-  nextTimer = setTimeout(() => {
-    index++;
-    if (index < roundSize) {
-      showQuestion(true);
-      return;
-    }
-    ui.game.hidden = true;
-    ui.finish.hidden = false;
-    ui["finish-title"].focus();
-  }, 2100);
+  nextTimer = setTimeout(advanceQuestion, 2100);
+}
+
+function advanceQuestion() {
+  clearTimeout(nextTimer);
+  stopSpeech();
+  index++;
+  if (index < roundSize) {
+    showQuestion(true);
+    return;
+  }
+  ui.game.hidden = true;
+  ui.finish.hidden = false;
+  ui["finish-title"].focus();
 }
 
 function changeMode(nextMode, focus = true) {
@@ -391,6 +453,7 @@ function changeMode(nextMode, focus = true) {
   ui["quiz-mode"].setAttribute("aria-pressed", String(!study));
   ui["study-controls"].hidden = !study;
   ui.answers.hidden = study;
+  ui.continue.hidden = true;
   ui.prompt.hidden = study;
   ui.names.hidden = !study;
   ui.progress.hidden = study;
@@ -432,6 +495,9 @@ ui["study-mode"].addEventListener("click", () => {
 ui["quiz-mode"].addEventListener("click", () => {
   if (mode !== "quiz") changeMode("quiz");
 });
+ui["speak-zh"].addEventListener("click", () => speakName("zh-TW", ui.chinese.textContent));
+ui["speak-en"].addEventListener("click", () => speakName("en-US", ui.english.textContent));
+ui.continue.addEventListener("click", advanceQuestion);
 ui.restart.addEventListener("click", () => changeMode("quiz"));
 changeMode("study", false);
 </script>
