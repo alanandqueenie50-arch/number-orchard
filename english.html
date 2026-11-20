@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff8ec">
+<meta name="description" content="看圖聽發音，玩遊戲認識 24 個生活英文單字。">
+<title>英文單字探險｜小小練習島</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #283046;
+  --paper: #fff8ec;
+  --mint: #acf2d0;
+  --yellow: #ffe16c;
+  --blue: #a2ddff;
+  --pink: #ffb2d3;
+  --navy: #4938b7;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 95% 8%, #ffe1ee, transparent 48%), var(--paper);
+  color: var(--ink);
+  font-family: ui-rounded, "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  line-height: 1.45;
+}
+main { width: min(100% - 24px, 740px); margin: 11px auto 28px; }
+a { color: inherit; }
+h1, h2, p { margin: 0; }
+button {
+  min-height: 47px;
+  padding: 5px 12px;
+  border: 2px solid var(--ink);
+  background: #fffdf9;
+  border-radius: 14px;
+  color: inherit;
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+button:active:not(:disabled) { transform: translateY(2px); }
+a:focus-visible, button:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px dashed var(--navy); outline-offset: 3px; }
+.back { display: inline-block; padding: 9px 0; font-weight: 850; text-decoration: none; }
+.hero {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 4vw, 22px);
+  margin: 4px 0 17px;
+  padding: clamp(13px, 4vw, 23px);
+  border: 2px solid var(--ink);
+  border-radius: 25px;
+  background: var(--mint);
+  box-shadow: 4px 5px 0 var(--ink);
+}
+.hero-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(50px, 15vw, 77px);
+  aspect-ratio: 1;
+  border: 2px solid var(--ink);
+  border-radius: 17px;
+  background: var(--yellow);
+  transform: rotate(-8deg);
+  flex: none;
+  font-size: clamp(29px, 8vw, 48px);
+}
+h1 { font-size: clamp(26px, 7vw, 44px); line-height: 1.14; font-weight: 950; }
+.hero p { font-size: clamp(13px, 3.5vw, 16px); margin-top: 4px; font-weight: 750; }
+.panel {
+  border: 2px solid var(--ink);
+  border-radius: 26px;
+  background: #fffdfa;
+  padding: clamp(10px, 3.5vw, 23px);
+  box-shadow: 4px 5px 0 var(--ink);
+}
+.activities, .answers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.activity { padding-inline: 3px; font-size: clamp(13px, 3.7vw, 19px); min-height: 56px; }
+.activity:nth-child(1) { background: var(--yellow); }
+.activity:nth-child(2) { background: var(--blue); }
+.activity:nth-child(3) { background: var(--pink); }
+.activity[aria-pressed="true"] { box-shadow: inset 0 0 0 2px #fffdfa, 0 3px 0 var(--ink); }
+.activity[aria-pressed="true"]::before { content: "✓ "; }
+.status { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 14px 0 7px; font-size: 14px; font-weight: 850; }
+#stars { background: #fff0b4; padding: 4px 10px; border-radius: 99px; }
+progress { display: block; width: 100%; height: 9px; accent-color: var(--navy); }
+.play, .finished { text-align: center; margin-top: 15px; }
+h2 { font-weight: 950; font-size: clamp(20px, 5vw, 28px); }
+.clue {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  margin: 9px 0;
+  padding: 9px 5px;
+  min-height: 115px;
+  border: 2px dashed #9176c6;
+  border-radius: 19px;
+  background: #f2eaff;
+}
+#picture, .trophy { font-size: clamp(50px, 16vw, 86px); line-height: 1.12; }
+#word { font-size: clamp(29px, 10vw, 50px); font-weight: 950; line-height: 1.13; overflow-wrap: anywhere; }
+#meaning { margin-top: 4px; font-weight: 750; }
+.sound-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 9px; }
+.sound-tools button { background: var(--mint); }
+#hear { background: var(--yellow); }
+.answers { margin-top: 12px; }
+.answer { background: var(--yellow); padding-inline: 1px; min-height: 62px; font-size: clamp(12px, 4vw, 23px); overflow-wrap: anywhere; box-shadow: 0 3px 0 var(--ink); }
+.answer:nth-child(2) { background: var(--blue); }
+.answer:nth-child(3) { background: var(--pink); }
+.answer.picture { font-size: clamp(30px, 9vw, 53px); }
+.answer.correct { background: var(--mint); }
+.answer.wrong { background: #eee7ef; color: #544a63; }
+.primary { width: 100%; background: var(--navy); color: white; margin-top: 13px; box-shadow: 0 3px 0 var(--ink); }
+#feedback { min-height: 1.45em; margin-top: 11px; font-weight: 850; }
+#feedback:empty { margin-top: 0; min-height: 0; }
+#audio-status { margin-top: 6px; font-size: 13px; }
+details { margin-top: 15px; }
+summary { font-weight: 850; cursor: pointer; }
+.wordbank { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 5px; margin-top: 8px; }
+.wordbank button { padding-inline: 4px; background: #e5f8f2; font-size: 14px; }
+[hidden] { display: none !important; }
+</style>
+<script src="./english-audio.js" defer></script>
+<script src="./english.js" defer></script>
+</head>
+<body>
+<main>
+  <a class="back" href="./learn.html">← 回小小練習島</a>
+  <header class="hero">
+    <span class="hero-icon" aria-hidden="true">🧭</span>
+    <div><h1>英文單字探險</h1><p>聽單字、找圖片、收集星星！</p></div>
+  </header>
+  <section class="panel" aria-label="英文單字練習">
+    <div class="activities" role="group" aria-label="選擇練習">
+      <button type="button" class="activity" data-mode="repeat" aria-pressed="true">看圖跟念</button>
+      <button type="button" class="activity" data-mode="listen" aria-pressed="false">聽音選圖</button>
+      <button type="button" class="activity" data-mode="read" aria-pressed="false">看圖選字</button>
+    </div>
+    <div class="status"><span id="round"></span><span id="stars"></span></div>
+    <progress id="progress" aria-label="探險進度" value="0" max="5"></progress>
+    <div id="play" class="play">
+      <h2 id="prompt" tabindex="-1"></h2>
+      <div class="clue" id="clue">
+        <div id="picture" role="img"></div>
+        <p id="word" lang="en"></p>
+        <p id="meaning"></p>
+      </div>
+      <div class="sound-tools" id="sound-tools">
+        <button type="button" id="hear">🔊 聽單字</button>
+        <button type="button" id="slow">🐢 慢慢念</button>
+      </div>
+      <div class="answers" id="answers" role="group" aria-label="選答案"></div>
+      <p id="feedback" role="status"></p>
+      <button class="primary" type="button" id="ready">我跟念好了</button>
+    </div>
+    <div class="finished" id="finished" hidden>
+      <span class="trophy" aria-hidden="true">🏆</span>
+      <h2 id="finish-title" tabindex="-1">探險完成！</h2>
+      <p>你收集了 5 顆星 ⭐</p>
+      <button type="button" class="primary" id="again">再玩一次</button>
+    </div>
+    <p id="audio-status" role="status" hidden></p>
+    <audio id="audio" preload="none" hidden></audio>
+    <noscript>請開啟 JavaScript 開始玩。</noscript>
+    <details id="wordbank-area">
+      <summary>點聽全部 24 個單字</summary>
+      <div class="wordbank" id="wordbank"></div>
+    </details>
+  </section>
+</main>
+</body>
+</html>
