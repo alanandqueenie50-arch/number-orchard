@@ -1,12 +1,6 @@
 "use strict";
 
-const symbolGroups = [
-  ["ㄅ到ㄌ", "ㄅㄆㄇㄈㄉㄊㄋㄌ"],
-  ["ㄍ到ㄒ", "ㄍㄎㄏㄐㄑㄒ"],
-  ["ㄓ到ㄙ", "ㄓㄔㄕㄖㄗㄘㄙ"],
-  ["ㄧ、ㄨ、ㄩ和基本韻母", "ㄧㄨㄩㄚㄛㄜㄝㄦ"],
-  ["其他韻母", "ㄞㄟㄠㄡㄢㄣㄤㄥ"]
-];
+const symbols = Array.from("ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ", sound => ({sound, word: sound}));
 
 const blends = [
   {sound: "ㄧㄚ", word: "鴨", art: "🦆"},
@@ -30,7 +24,7 @@ const tones = {"": "一聲", "ˊ": "二聲", "ˇ": "三聲", "ˋ": "四聲"};
 const roundSize = 5;
 const stages = [...document.querySelectorAll("[data-stage]")];
 const ui = Object.fromEntries([
-  "set-picker", "symbol-set", "symbol-guide", "guide-buttons", "round", "stars", "progress", "lesson", "lesson-title", "cars",
+  "symbol-guide", "guide-buttons", "round", "stars", "progress", "lesson", "lesson-title", "cars",
   "model", "example", "ready", "quiz", "quiz-title", "hear", "answers", "feedback", "finished",
   "finish-title", "again", "audio-note", "recording"
 ].map(id => [id, document.getElementById(id)]));
@@ -157,23 +151,8 @@ function updateStars() {
 function beginRound(focus = false) {
   clearTimeout(stepTimer);
   stopAudio();
-  if (stage === "single") {
-    pool = Array.from(symbolGroups[Number(ui["symbol-set"].value)][1], sound => ({sound, word: sound}));
-  } else {
-    pool = stage === "blend" ? blends : syllables;
-  }
+  pool = {single: symbols, blend: blends, spell: syllables}[stage];
   ui["symbol-guide"].hidden = stage !== "single";
-  ui["guide-buttons"].replaceChildren();
-  if (stage === "single") {
-    for (const {sound} of pool) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = sound;
-      button.setAttribute("aria-label", "聽 " + sound);
-      button.addEventListener("click", () => play(sound));
-      ui["guide-buttons"].append(button);
-    }
-  }
   questions = shuffle(pool).slice(0, roundSize);
   position = 0;
   stars = 0;
@@ -241,22 +220,22 @@ function advance() {
   ui["finish-title"].focus();
 }
 
-for (const [index, [label, symbols]] of symbolGroups.entries()) {
-  const option = document.createElement("option");
-  option.value = String(index);
-  option.textContent = label + " · " + symbols;
-  ui["symbol-set"].append(option);
+for (const {sound} of symbols) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = sound;
+  button.setAttribute("aria-label", "聽 " + sound);
+  button.addEventListener("click", () => play(sound));
+  ui["guide-buttons"].append(button);
 }
 for (const button of stages) {
   button.addEventListener("click", () => {
     if (stage === button.dataset.stage) return;
     stage = button.dataset.stage;
     for (const item of stages) item.setAttribute("aria-pressed", String(item === button));
-    ui["set-picker"].hidden = stage !== "single";
     beginRound(true);
   });
 }
-ui["symbol-set"].addEventListener("change", () => beginRound());
 ui.ready.addEventListener("click", showQuiz);
 ui.hear.addEventListener("click", () => play(current().word));
 ui.again.addEventListener("click", () => beginRound(true));

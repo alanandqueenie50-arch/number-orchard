@@ -28,7 +28,7 @@ body {
 main { width: min(100% - 24px, 740px); margin: 17px auto 30px; }
 a { color: inherit; }
 h1, h2, p { margin: 0; }
-button, select {
+button {
   color: inherit;
   font: inherit;
   font-weight: 850;
@@ -40,7 +40,7 @@ button, select {
 }
 button { cursor: pointer; touch-action: manipulation; }
 button:active:not(:disabled) { transform: translateY(2px); }
-a:focus-visible, button:focus-visible, select:focus-visible, [tabindex="-1"]:focus-visible {
+a:focus-visible, button:focus-visible, [tabindex="-1"]:focus-visible {
   outline: 3px dashed var(--purple);
   outline-offset: 3px;
 }
@@ -97,9 +97,6 @@ a:focus-visible, button:focus-visible, select:focus-visible, [tabindex="-1"]:foc
 .stage-p { background: var(--pink); }
 .stage[aria-pressed="true"] { box-shadow: inset 0 0 0 2px white, 0 3px 0 var(--ink); }
 .stage[aria-pressed="true"] strong::before { content: "✓ "; }
-.set-picker { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 15px 0 4px; }
-.set-picker label { font-weight: 800; }
-.set-picker select { flex: 1; min-width: 0; }
 .symbol-guide { margin: 10px 1px; }
 .guide-buttons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
 .guide-buttons button { min-width: 44px; font-size: 25px; padding-inline: 8px; background: var(--blue); }
@@ -155,7 +152,7 @@ details p { margin-top: 6px; line-height: 1.5; }
 [hidden] { display: none !important; }
 </style>
 <script src="./zhuyin-audio.js" defer></script>
-<script src="./zhuyin.js" defer></script>
+<script src="./zhuyin.js?v=all-symbols" defer></script>
 </head>
 <body>
 <main>
@@ -170,12 +167,8 @@ details p { margin-top: 6px; line-height: 1.5; }
       <button class="stage stage-b" type="button" data-stage="blend" aria-pressed="false"><strong>接一接</strong><small>結合韻</small></button>
       <button class="stage stage-p" type="button" data-stage="spell" aria-pressed="false"><strong>拼一拼</strong><small>拼音・聲調</small></button>
     </div>
-    <div class="set-picker" id="set-picker">
-      <label for="symbol-set">選一組</label>
-      <select id="symbol-set"></select>
-    </div>
     <details class="symbol-guide" id="symbol-guide">
-      <summary>點聽本組所有符號</summary>
+      <summary>點聽 37 個注音符號</summary>
       <div class="guide-buttons" id="guide-buttons"></div>
     </details>
     <div class="status"><span id="round"></span><span id="stars"></span></div>
