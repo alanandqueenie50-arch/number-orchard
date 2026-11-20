@@ -3,53 +3,197 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#fdf7ed">
+<meta name="theme-color" content="#ffe06a">
 <title>數數小果園</title>
 <style>
-:root{color-scheme:light;--paper:#fdf7ed;--ink:#243b32;--green:#205943;--mint:#e1efdf;--line:#dedace;--gold:#ffcd74}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,"PingFang TC","Microsoft JhengHei",sans-serif}
-main{width:min(100% - 28px,620px);margin:clamp(20px,6vh,62px) auto}
-header{display:flex;align-items:center;gap:14px;margin-bottom:20px}
-.logo{background:var(--mint);border-radius:18px;padding:10px;font-size:32px}
-h1,h2,p{margin:0}
-h1{font-size:clamp(26px,6vw,38px);letter-spacing:.06em}
-header p{margin-top:3px;color:#526558}
-.card{padding:clamp(17px,5vw,32px);border:1px solid var(--line);border-radius:28px;background:#fffdf8;box-shadow:0 8px 0 #efe6d7}
-.controls,.status{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.modes{display:flex;gap:6px}
-button,select{font:inherit;color:inherit;min-height:46px;border:1px solid var(--line);border-radius:13px;background:white;padding:6px 12px}
-button{cursor:pointer;font-weight:700;touch-action:manipulation}
-button:focus-visible,select:focus-visible{outline:3px solid #916513;outline-offset:3px}
-button[aria-pressed=true],.primary{background:var(--green);color:white;border-color:var(--green)}
-.status{margin:24px 0 10px;font-weight:700}
-progress{display:block;width:100%;height:10px;appearance:none;border:0;border-radius:20px;background:#efe9de}
-progress::-webkit-progress-bar{border-radius:20px;background:#efe9de}
-progress::-webkit-progress-value{border-radius:20px;background:var(--green)}
-progress::-moz-progress-bar{border-radius:20px;background:var(--green)}
-.play,.result{text-align:center;margin-top:22px}
-h2{font-size:clamp(36px,10vw,62px);letter-spacing:.04em}
-.fruit-board{display:flex;align-items:center;justify-content:center;gap:12px;min-height:100px;margin:12px 0;background:#f1f6e9;border-radius:18px;padding:12px}
-.fruit-group{display:grid;grid-template-columns:repeat(5,minmax(0,1em));justify-content:center;gap:3px;font-size:clamp(18px,5vw,32px);line-height:1.25}
-.fruit-group.add{display:flex;flex-wrap:wrap;max-width:5.5em}
-.fruit{position:relative}
-.removed{opacity:.52}
-.removed::after{content:"";position:absolute;inset:48% 0 auto;height:3px;background:#76283b;transform:rotate(-42deg)}
-.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
-.options button{min-height:64px;font-size:30px;background:#fff1d6;border-color:#ebcc93}
-.options button.wrong{background:#fbebeb;color:#843343}
-.options button.right{background:var(--mint);color:var(--green);border-color:var(--green)}
-.feedback{min-height:1.5em;margin:14px 0 8px;font-weight:700}
-.primary{width:100%;min-height:50px}
-.result p{margin:14px 0 22px}
-[hidden]{display:none!important}
+:root {
+  color-scheme: light;
+  --ink: #251546;
+  --paper: #fff8e9;
+  --purple: #6d3bd3;
+  --pink: #ff86bc;
+  --yellow: #ffe06a;
+  --mint: #aef2bf;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: ui-rounded, system-ui, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  background:
+    radial-gradient(circle at 13% 12%, #ffd5ea 0, transparent 32%),
+    radial-gradient(circle at 95% 68%, #d0c7ff 0, transparent 42%),
+    var(--paper);
+  min-height: 100vh;
+}
+main { width: min(100% - 28px, 630px); margin: 26px auto 36px; }
+h1, h2, p { margin: 0; }
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 29px;
+  padding: 16px clamp(13px, 4vw, 25px);
+  background: var(--yellow);
+  box-shadow: 4px 5px 0 var(--ink);
+  margin-bottom: 17px;
+}
+.hero-title { display: flex; align-items: center; gap: clamp(7px, 3vw, 16px); }
+.mascot {
+  display: grid;
+  place-items: center;
+  width: clamp(44px, 11vw, 62px);
+  aspect-ratio: 1;
+  background: #ff9dcb;
+  border: 2px solid var(--ink);
+  border-radius: 19px;
+  font-size: clamp(25px, 6vw, 37px);
+  transform: rotate(-8deg);
+}
+h1 { font-size: clamp(23px, 5.5vw, 36px); font-weight: 900; line-height: 1.13; }
+.hero p { margin-top: 4px; font-size: clamp(12px, 2.9vw, 15px); font-weight: 650; }
+.card {
+  position: relative;
+  padding: clamp(13px, 4vw, 24px);
+  border: 2px solid var(--ink);
+  border-radius: 29px;
+  background: #fffdf9;
+  box-shadow: 4px 5px 0 var(--ink);
+}
+.controls, .status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.modes { display: flex; gap: 5px; }
+button, select {
+  font: inherit;
+  color: inherit;
+  min-height: 44px;
+  border: 2px solid var(--ink);
+  border-radius: 13px;
+  background: #fff;
+  padding: 5px 10px;
+  font-weight: 800;
+}
+button { cursor: pointer; touch-action: manipulation; }
+button:not(:disabled):active { transform: translateY(2px); }
+button:focus-visible, select:focus-visible, [tabindex="-1"]:focus-visible {
+  outline: 3px dashed var(--purple);
+  outline-offset: 4px;
+}
+button[aria-pressed="true"], .primary { background: var(--purple); color: #fff; }
+.voice { background: #fff; flex: none; font-size: 14px; }
+.voice[aria-pressed="true"] { background: var(--mint); color: var(--ink); }
+.status { margin: 15px 0 6px; font-weight: 800; font-size: 15px; }
+#stars { padding: 3px 9px; border-radius: 999px; background: #fff0ad; }
+progress { display: block; width: 100%; height: 10px; accent-color: var(--purple); }
+progress::-webkit-progress-bar { background: #ede2ff; border-radius: 20px; }
+progress::-webkit-progress-value { background: #8153ef; border-radius: 20px; }
+progress::-moz-progress-bar { background: #8153ef; border-radius: 20px; }
+.play, .result { text-align: center; margin-top: 13px; }
+.prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 3vw, 17px);
+}
+h2 { font-size: clamp(37px, 10vw, 59px); font-weight: 950; line-height: 1.13; }
+#hear { background: #e4d5ff; font-size: 14px; padding-inline: 8px; }
+.fruit-board {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 84px;
+  margin: 10px 0;
+  border: 2px dashed #9270d4;
+  border-radius: 20px;
+  padding: 8px;
+  background: #f2e9ff;
+  font-weight: 850;
+}
+.fruit-group {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1em));
+  justify-content: center;
+  gap: 3px;
+  font-size: clamp(18px, 5vw, 29px);
+  line-height: 1.2;
+}
+.fruit-group.add { display: flex; flex-wrap: wrap; max-width: 5.5em; }
+.fruit { position: relative; }
+.removed { opacity: .55; }
+.removed::after {
+  content: "";
+  position: absolute;
+  inset: 48% 0 auto;
+  height: 3px;
+  background: #75244a;
+  transform: rotate(-42deg);
+}
+#instruction { font-size: 15px; font-weight: 750; }
+.options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 8px; }
+.options button {
+  min-height: 60px;
+  font-size: 31px;
+  background: var(--pink);
+  box-shadow: 0 4px 0 var(--ink);
+}
+.options button:nth-child(2) { background: #8be4ff; }
+.options button:nth-child(3) { background: #ffdc64; }
+.options button.wrong { background: #f2e9f2; color: #654a67; box-shadow: none; }
+.options button.right { background: #a0f6b2; animation: bounce .42s ease-out; }
+.feedback { min-height: 1.45em; margin: 12px 0 6px; font-size: 15px; font-weight: 800; }
+.primary { width: 100%; min-height: 48px; font-size: 17px; box-shadow: 0 3px 0 var(--ink); }
+.voice-status { margin-top: 7px; font-size: 13px; text-align: center; }
+.result { padding: 14px 0 0; }
+.result-icon { font-size: 54px; display: block; margin-bottom: 8px; }
+.result p { margin: 10px 0 16px; font-weight: 750; }
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: inherit; }
+.confetti i {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  width: 9px;
+  height: 13px;
+  border-radius: 3px;
+  background: var(--color);
+  opacity: 0;
+  animation: toss .72s ease-out forwards;
+}
+@keyframes toss {
+  15% { opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) rotate(var(--spin)); opacity: 0; }
+}
+@keyframes bounce {
+  35% { transform: translateY(-7px) scale(1.07); }
+  100% { transform: none; }
+}
+@media (max-width: 370px) {
+  main { width: calc(100% - 20px); margin-top: 14px; }
+  .hero { padding: 13px 9px; }
+  .voice { padding-inline: 6px; font-size: 13px; }
+  .controls button, .controls select { padding-inline: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0s !important; }
+}
+[hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <main>
-  <header>
-    <span class="logo" aria-hidden="true">🍎</span>
-    <div><h1>數數小果園</h1><p>數一數，練習加法和減法！</p></div>
+  <header class="hero">
+    <div class="hero-title">
+      <span class="mascot" aria-hidden="true">🍓</span>
+      <div><h1>數數小果園</h1><p>數水果，收集星星！</p></div>
+    </div>
+    <button type="button" id="voice" class="voice" aria-label="語音" aria-pressed="false">🔇 語音</button>
   </header>
   <section class="card" aria-label="加減法練習">
     <div class="controls">
@@ -63,7 +207,10 @@ h2{font-size:clamp(36px,10vw,62px);letter-spacing:.04em}
     <div class="status"><span id="round"></span><span id="stars"></span></div>
     <progress id="progress" max="10" value="0" aria-label="答題進度"></progress>
     <div class="play" id="play">
-      <h2 id="equation" tabindex="-1"></h2>
+      <div class="prompt">
+        <h2 id="equation" tabindex="-1"></h2>
+        <button type="button" id="hear">🔊 念題</button>
+      </div>
       <div class="fruit-board" id="fruit-board" role="img"></div>
       <p id="instruction">選一個答案</p>
       <div class="options" id="options" role="group" aria-labelledby="instruction"></div>
@@ -71,10 +218,13 @@ h2{font-size:clamp(36px,10vw,62px);letter-spacing:.04em}
       <button type="button" id="next" class="primary" hidden>下一題</button>
     </div>
     <div class="result" id="result" hidden>
+      <span class="result-icon" aria-hidden="true">🏆</span>
       <h2 id="result-title" tabindex="-1">闖關完成！</h2>
       <p id="summary"></p>
       <button type="button" id="restart" class="primary">再玩一次</button>
     </div>
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+    <p id="voice-status" class="voice-status" role="status" hidden></p>
     <noscript>請開啟 JavaScript，才能開始遊戲。</noscript>
   </section>
 </main>
@@ -84,7 +234,8 @@ h2{font-size:clamp(36px,10vw,62px);letter-spacing:.04em}
 const roundSize = 10;
 const ui = Object.fromEntries(
   ["limit", "round", "stars", "progress", "play", "equation", "fruit-board",
-    "options", "feedback", "next", "result", "result-title", "summary", "restart"]
+    "options", "feedback", "next", "result", "result-title", "summary", "restart",
+    "voice", "hear", "confetti", "voice-status"]
     .map(id => [id, document.getElementById(id)])
 );
 const modeButtons = document.querySelectorAll("[data-mode]");
@@ -93,6 +244,83 @@ let questions = [];
 let index = 0;
 let score = 0;
 let answered = false;
+let voiceEnabled = false;
+const speech = window.speechSynthesis;
+const fruitTypes = [
+  {symbol: "🍎", name: "蘋果"},
+  {symbol: "🍓", name: "草莓"},
+  {symbol: "🍊", name: "橘子"},
+  {symbol: "🍒", name: "櫻桃"},
+  {symbol: "🍐", name: "梨子"}
+];
+const cheers = [
+  "答對了！得到一顆星！",
+  "好棒喔！又多一顆星！",
+  "你數對了！送你一顆星！"
+];
+
+function taiwanVoice() {
+  const voices = speech.getVoices().filter(voice => /^zh[-_]tw$/i.test(voice.lang));
+  const femaleNames = /meijia|mei.?jia|hsiao.?chen|hsiao.?yu|yating|google.*台灣|美佳|曉臻|曉辰|曉雨|雅婷|hanhan|涵涵|ting.?ting/i;
+  return voices.find(voice => femaleNames.test(voice.name)) ||
+    voices.find(voice => /female|女聲/i.test(voice.name)) ||
+    voices[0];
+}
+
+function voiceUnavailable() {
+  ui["voice-status"].textContent = "這台裝置目前無法播放語音。";
+  ui["voice-status"].hidden = false;
+}
+
+function speak(text) {
+  if (!voiceEnabled) return;
+  if (!speech || !window.SpeechSynthesisUtterance) {
+    voiceUnavailable();
+    return;
+  }
+  ui["voice-status"].hidden = true;
+  speech.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voice = taiwanVoice();
+  utterance.lang = "zh-TW";
+  if (voice) utterance.voice = voice;
+  utterance.rate = 0.84;
+  utterance.pitch = 1.08;
+  utterance.onerror = event => {
+    if (!["canceled", "interrupted"].includes(event.error)) voiceUnavailable();
+  };
+  speech.speak(utterance);
+}
+
+function setVoice(enabled) {
+  voiceEnabled = enabled;
+  ui.voice.setAttribute("aria-pressed", String(enabled));
+  ui.voice.textContent = enabled ? "🔊 語音" : "🔇 語音";
+  if (!enabled) {
+    ui["voice-status"].hidden = true;
+    speech?.cancel();
+  }
+}
+
+function readQuestion() {
+  const {a, b, sign} = questions[index];
+  const operation = sign === "+" ? "加" : "減";
+  speak(a + " " + operation + " " + b + "，等於多少？");
+}
+
+function celebrate() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#fc66a4", "#25bfed", "#ffd940", "#a06bff", "#55d781"];
+  const pieces = Array.from({length: 16}, (_, i) => {
+    const piece = document.createElement("i");
+    piece.style.setProperty("--color", colors[i % colors.length]);
+    piece.style.setProperty("--x", ((i - 7.5) * 23) + "px");
+    piece.style.setProperty("--y", (-70 - Math.random() * 175) + "px");
+    piece.style.setProperty("--spin", (i * 50) + "deg");
+    return piece;
+  });
+  ui.confetti.replaceChildren(...pieces);
+}
 
 function shuffle(items) {
   for (let i = items.length - 1; i > 0; i--) {
@@ -124,9 +352,10 @@ function newRound(focus = false) {
   ui.play.hidden = false;
   ui.result.hidden = true;
   showQuestion(focus);
+  readQuestion();
 }
 
-function fruitGroup(count, removed = 0, isAdd = false) {
+function fruitGroup(fruitType, count, removed = 0, isAdd = false) {
   const group = document.createElement("span");
   group.className = isAdd ? "fruit-group add" : "fruit-group";
   if (count === 0) {
@@ -136,7 +365,7 @@ function fruitGroup(count, removed = 0, isAdd = false) {
   for (let i = 0; i < count; i++) {
     const fruit = document.createElement("span");
     fruit.className = i >= count - removed ? "fruit removed" : "fruit";
-    fruit.textContent = "🍎";
+    fruit.textContent = fruitType.symbol;
     group.append(fruit);
   }
   return group;
@@ -145,7 +374,9 @@ function fruitGroup(count, removed = 0, isAdd = false) {
 function showQuestion(focus) {
   const {a, b, sign, answer} = questions[index];
   const add = sign === "+";
+  const fruit = fruitTypes[index % fruitTypes.length];
   answered = false;
+  ui.confetti.replaceChildren();
   ui.round.textContent = "第 " + (index + 1) + " / " + roundSize + " 題";
   ui.stars.textContent = "⭐ " + score + " 顆星";
   ui.progress.value = index;
@@ -154,11 +385,11 @@ function showQuestion(focus) {
   if (add) {
     const plus = document.createElement("span");
     plus.textContent = "+";
-    ui["fruit-board"].append(fruitGroup(a, 0, true), plus, fruitGroup(b, 0, true));
-    ui["fruit-board"].setAttribute("aria-label", a + " 顆蘋果，再加 " + b + " 顆");
+    ui["fruit-board"].append(fruitGroup(fruit, a, 0, true), plus, fruitGroup(fruit, b, 0, true));
+    ui["fruit-board"].setAttribute("aria-label", a + " 顆" + fruit.name + "，再加 " + b + " 顆");
   } else {
-    ui["fruit-board"].append(fruitGroup(a, b));
-    ui["fruit-board"].setAttribute("aria-label", a + " 顆蘋果，劃掉 " + b + " 顆");
+    ui["fruit-board"].append(fruitGroup(fruit, a, b));
+    ui["fruit-board"].setAttribute("aria-label", a + " 顆" + fruit.name + "，劃掉 " + b + " 顆");
   }
   ui.options.replaceChildren();
   ui.feedback.textContent = "";
@@ -182,7 +413,8 @@ function checkAnswer(button, correct) {
   if (!correct) {
     button.classList.add("wrong");
     button.disabled = true;
-    ui.feedback.textContent = "再數一次蘋果，試試看！";
+    ui.feedback.textContent = "再數一次水果，試試看！";
+    speak("別急，再數一次水果，試試看！");
     ui.options.querySelector("button:not(:disabled)").focus();
     return;
   }
@@ -192,7 +424,10 @@ function checkAnswer(button, correct) {
   for (const option of ui.options.children) option.disabled = true;
   ui.stars.textContent = "⭐ " + score + " 顆星";
   ui.progress.value = score;
-  ui.feedback.textContent = "答對了！得到一顆星 ⭐";
+  const cheer = cheers[(score - 1) % cheers.length];
+  ui.feedback.textContent = cheer + " ⭐";
+  celebrate();
+  speak(cheer);
   ui.next.hidden = false;
   ui.next.focus();
 }
@@ -201,12 +436,25 @@ ui.next.addEventListener("click", () => {
   index++;
   if (index < roundSize) {
     showQuestion(true);
+    readQuestion();
     return;
   }
   ui.play.hidden = true;
   ui.result.hidden = false;
   ui.summary.textContent = "你完成了 " + roundSize + " 題，收集到 " + score + " 顆星！";
   ui["result-title"].focus();
+  celebrate();
+  speak("闖關完成！你收集到十顆星，太棒了！");
+});
+
+ui.voice.addEventListener("click", () => {
+  setVoice(!voiceEnabled);
+  if (ui.result.hidden && !answered) readQuestion();
+  else if (voiceEnabled) speak(ui.result.hidden ? "答對了！" : "闖關完成！");
+});
+ui.hear.addEventListener("click", () => {
+  setVoice(true);
+  readQuestion();
 });
 
 for (const button of modeButtons) {
