@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fdf7ed">
+<title>數數小果園</title>
+<style>
+:root{color-scheme:light;--paper:#fdf7ed;--ink:#243b32;--green:#205943;--mint:#e1efdf;--line:#dedace;--gold:#ffcd74}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,"PingFang TC","Microsoft JhengHei",sans-serif}
+main{width:min(100% - 28px,620px);margin:clamp(20px,6vh,62px) auto}
+header{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.logo{background:var(--mint);border-radius:18px;padding:10px;font-size:32px}
+h1,h2,p{margin:0}
+h1{font-size:clamp(26px,6vw,38px);letter-spacing:.06em}
+header p{margin-top:3px;color:#526558}
+.card{padding:clamp(17px,5vw,32px);border:1px solid var(--line);border-radius:28px;background:#fffdf8;box-shadow:0 8px 0 #efe6d7}
+.controls,.status{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.modes{display:flex;gap:6px}
+button,select{font:inherit;color:inherit;min-height:46px;border:1px solid var(--line);border-radius:13px;background:white;padding:6px 12px}
+button{cursor:pointer;font-weight:700;touch-action:manipulation}
+button:focus-visible,select:focus-visible{outline:3px solid #916513;outline-offset:3px}
+button[aria-pressed=true],.primary{background:var(--green);color:white;border-color:var(--green)}
+.status{margin:24px 0 10px;font-weight:700}
+progress{display:block;width:100%;height:10px;appearance:none;border:0;border-radius:20px;background:#efe9de}
+progress::-webkit-progress-bar{border-radius:20px;background:#efe9de}
+progress::-webkit-progress-value{border-radius:20px;background:var(--green)}
+progress::-moz-progress-bar{border-radius:20px;background:var(--green)}
+.play,.result{text-align:center;margin-top:22px}
+h2{font-size:clamp(36px,10vw,62px);letter-spacing:.04em}
+.fruit-board{display:flex;align-items:center;justify-content:center;gap:12px;min-height:100px;margin:12px 0;background:#f1f6e9;border-radius:18px;padding:12px}
+.fruit-group{display:grid;grid-template-columns:repeat(5,minmax(0,1em));justify-content:center;gap:3px;font-size:clamp(18px,5vw,32px);line-height:1.25}
+.fruit-group.add{display:flex;flex-wrap:wrap;max-width:5.5em}
+.fruit{position:relative}
+.removed{opacity:.52}
+.removed::after{content:"";position:absolute;inset:48% 0 auto;height:3px;background:#76283b;transform:rotate(-42deg)}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+.options button{min-height:64px;font-size:30px;background:#fff1d6;border-color:#ebcc93}
+.options button.wrong{background:#fbebeb;color:#843343}
+.options button.right{background:var(--mint);color:var(--green);border-color:var(--green)}
+.feedback{min-height:1.5em;margin:14px 0 8px;font-weight:700}
+.primary{width:100%;min-height:50px}
+.result p{margin:14px 0 22px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="logo" aria-hidden="true">🍎</span>
+    <div><h1>數數小果園</h1><p>數一數，練習加法和減法！</p></div>
+  </header>
+  <section class="card" aria-label="加減法練習">
+    <div class="controls">
+      <div class="modes" role="group" aria-label="題型">
+        <button type="button" data-mode="mixed" aria-pressed="true">混合</button>
+        <button type="button" data-mode="add" aria-pressed="false">加法</button>
+        <button type="button" data-mode="subtract" aria-pressed="false">減法</button>
+      </div>
+      <select id="limit" aria-label="數字範圍"><option value="5">5 以內</option><option value="10" selected>10 以內</option></select>
+    </div>
+    <div class="status"><span id="round"></span><span id="stars"></span></div>
+    <progress id="progress" max="10" value="0" aria-label="答題進度"></progress>
+    <div class="play" id="play">
+      <h2 id="equation" tabindex="-1"></h2>
+      <div class="fruit-board" id="fruit-board" role="img"></div>
+      <p id="instruction">選一個答案</p>
+      <div class="options" id="options" role="group" aria-labelledby="instruction"></div>
+      <p id="feedback" class="feedback" role="status"></p>
+      <button type="button" id="next" class="primary" hidden>下一題</button>
+    </div>
+    <div class="result" id="result" hidden>
+      <h2 id="result-title" tabindex="-1">闖關完成！</h2>
+      <p id="summary"></p>
+      <button type="button" id="restart" class="primary">再玩一次</button>
+    </div>
+    <noscript>請開啟 JavaScript，才能開始遊戲。</noscript>
+  </section>
+</main>
+<script>
+"use strict";
+
+const roundSize = 10;
+const ui = Object.fromEntries(
+  ["limit", "round", "stars", "progress", "play", "equation", "fruit-board",
+    "options", "feedback", "next", "result", "result-title", "summary", "restart"]
+    .map(id => [id, document.getElementById(id)])
+);
+const modeButtons = document.querySelectorAll("[data-mode]");
+let mode = "mixed";
+let questions = [];
+let index = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(items) {
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return items;
+}
+
+function newRound(focus = false) {
+  const limit = Number(ui.limit.value);
+  const additions = [];
+  const subtractions = [];
+  for (let a = 0; a <= limit; a++) {
+    for (let b = 0; b <= limit; b++) {
+      if (a + b <= limit) additions.push({a, b, sign: "+", answer: a + b});
+      if (b <= a) subtractions.push({a, b, sign: "−", answer: a - b});
+    }
+  }
+  shuffle(additions);
+  shuffle(subtractions);
+  if (mode === "mixed") {
+    questions = shuffle([...additions.slice(0, 5), ...subtractions.slice(0, 5)]);
+  } else {
+    questions = (mode === "add" ? additions : subtractions).slice(0, roundSize);
+  }
+  index = 0;
+  score = 0;
+  ui.play.hidden = false;
+  ui.result.hidden = true;
+  showQuestion(focus);
+}
+
+function fruitGroup(count, removed = 0, isAdd = false) {
+  const group = document.createElement("span");
+  group.className = isAdd ? "fruit-group add" : "fruit-group";
+  if (count === 0) {
+    group.textContent = "0";
+    return group;
+  }
+  for (let i = 0; i < count; i++) {
+    const fruit = document.createElement("span");
+    fruit.className = i >= count - removed ? "fruit removed" : "fruit";
+    fruit.textContent = "🍎";
+    group.append(fruit);
+  }
+  return group;
+}
+
+function showQuestion(focus) {
+  const {a, b, sign, answer} = questions[index];
+  const add = sign === "+";
+  answered = false;
+  ui.round.textContent = "第 " + (index + 1) + " / " + roundSize + " 題";
+  ui.stars.textContent = "⭐ " + score + " 顆星";
+  ui.progress.value = index;
+  ui.equation.textContent = a + " " + sign + " " + b + " = ?";
+  ui["fruit-board"].replaceChildren();
+  if (add) {
+    const plus = document.createElement("span");
+    plus.textContent = "+";
+    ui["fruit-board"].append(fruitGroup(a, 0, true), plus, fruitGroup(b, 0, true));
+    ui["fruit-board"].setAttribute("aria-label", a + " 顆蘋果，再加 " + b + " 顆");
+  } else {
+    ui["fruit-board"].append(fruitGroup(a, b));
+    ui["fruit-board"].setAttribute("aria-label", a + " 顆蘋果，劃掉 " + b + " 顆");
+  }
+  ui.options.replaceChildren();
+  ui.feedback.textContent = "";
+  ui.next.hidden = true;
+  ui.next.textContent = index === roundSize - 1 ? "看結果" : "下一題";
+  const candidates = Array.from({length: Number(ui.limit.value) + 1}, (_, n) => n)
+    .filter(n => n !== answer);
+  const choices = shuffle([answer, ...shuffle(candidates).slice(0, 2)]);
+  for (const choice of choices) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = choice;
+    button.addEventListener("click", () => checkAnswer(button, choice === answer));
+    ui.options.append(button);
+  }
+  if (focus) ui.equation.focus();
+}
+
+function checkAnswer(button, correct) {
+  if (answered) return;
+  if (!correct) {
+    button.classList.add("wrong");
+    button.disabled = true;
+    ui.feedback.textContent = "再數一次蘋果，試試看！";
+    ui.options.querySelector("button:not(:disabled)").focus();
+    return;
+  }
+  answered = true;
+  score++;
+  button.classList.add("right");
+  for (const option of ui.options.children) option.disabled = true;
+  ui.stars.textContent = "⭐ " + score + " 顆星";
+  ui.progress.value = score;
+  ui.feedback.textContent = "答對了！得到一顆星 ⭐";
+  ui.next.hidden = false;
+  ui.next.focus();
+}
+
+ui.next.addEventListener("click", () => {
+  index++;
+  if (index < roundSize) {
+    showQuestion(true);
+    return;
+  }
+  ui.play.hidden = true;
+  ui.result.hidden = false;
+  ui.summary.textContent = "你完成了 " + roundSize + " 題，收集到 " + score + " 顆星！";
+  ui["result-title"].focus();
+});
+
+for (const button of modeButtons) {
+  button.addEventListener("click", () => {
+    if (button.dataset.mode === mode) return;
+    mode = button.dataset.mode;
+    for (const item of modeButtons) {
+      item.setAttribute("aria-pressed", String(item === button));
+    }
+    newRound();
+  });
+}
+ui.limit.addEventListener("change", () => newRound());
+ui.restart.addEventListener("click", () => newRound(true));
+newRound();
+</script>
+</body>
+</html>
