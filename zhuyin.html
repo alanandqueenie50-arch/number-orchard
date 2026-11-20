@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff8e9">
+<meta name="description" content="跟著注音小火車，聽單音、接結合韻、練拼音和聲調。">
+<title>注音小火車｜小小練習島</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #272044;
+  --paper: #fff8e9;
+  --yellow: #ffe06c;
+  --mint: #b0f1ce;
+  --blue: #a3e8fb;
+  --pink: #ffb3ce;
+  --purple: #6538bd;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: ui-rounded, "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(ellipse at 100% 5%, #e5d9ff, transparent 52%), var(--paper);
+}
+main { width: min(100% - 24px, 740px); margin: 17px auto 30px; }
+a { color: inherit; }
+h1, h2, p { margin: 0; }
+button, select {
+  color: inherit;
+  font: inherit;
+  font-weight: 850;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  min-height: 47px;
+  background: #fffdf9;
+  padding: 6px 12px;
+}
+button { cursor: pointer; touch-action: manipulation; }
+button:active:not(:disabled) { transform: translateY(2px); }
+a:focus-visible, button:focus-visible, select:focus-visible, [tabindex="-1"]:focus-visible {
+  outline: 3px dashed var(--purple);
+  outline-offset: 3px;
+}
+.back { display: inline-block; padding: 9px 0; font-weight: 850; text-decoration: none; }
+.hero {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 4vw, 25px);
+  padding: clamp(14px, 4vw, 24px);
+  margin: 3px 0 17px;
+  border: 2px solid var(--ink);
+  border-radius: 26px;
+  box-shadow: 4px 5px 0 var(--ink);
+  background: var(--yellow);
+}
+.hero-art {
+  display: grid;
+  place-items: center;
+  width: clamp(51px, 15vw, 88px);
+  aspect-ratio: 1;
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  background: var(--pink);
+  font-size: clamp(33px, 9vw, 58px);
+  transform: rotate(-7deg);
+  flex-shrink: 0;
+}
+.hero h1 { font-size: clamp(29px, 7vw, 47px); font-weight: 950; line-height: 1.14; }
+.hero p { font-size: clamp(13px, 3.3vw, 16px); margin-top: 5px; font-weight: 750; }
+.game {
+  border: 2px solid var(--ink);
+  border-radius: 25px;
+  padding: clamp(12px, 3.5vw, 24px);
+  background: #fffdfa;
+  box-shadow: 4px 5px 0 var(--ink);
+}
+.stages {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(5px, 2vw, 12px);
+}
+.stage {
+  display: grid;
+  place-content: center;
+  gap: 3px;
+  min-height: 62px;
+  padding-inline: 2px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.stage strong { font-size: clamp(15px, 4.4vw, 20px); }
+.stage small { font-size: clamp(11px, 2.8vw, 13px); }
+.stage-y { background: var(--yellow); }
+.stage-b { background: var(--blue); }
+.stage-p { background: var(--pink); }
+.stage[aria-pressed="true"] { box-shadow: inset 0 0 0 2px white, 0 3px 0 var(--ink); }
+.stage[aria-pressed="true"] strong::before { content: "✓ "; }
+.set-picker { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 15px 0 4px; }
+.set-picker label { font-weight: 800; }
+.set-picker select { flex: 1; min-width: 0; }
+.symbol-guide { margin: 10px 1px; }
+.guide-buttons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.guide-buttons button { min-width: 44px; font-size: 25px; padding-inline: 8px; background: var(--blue); }
+.status { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; margin: 14px 0 7px; font-weight: 850; font-size: 14px; }
+#stars { border-radius: 99px; padding: 4px 10px; background: #fff0b4; }
+progress { display: block; width: 100%; height: 9px; accent-color: var(--purple); }
+.lesson, .quiz, .finished { text-align: center; margin-top: 13px; }
+h2 { font-size: clamp(23px, 6vw, 30px); font-weight: 950; margin-bottom: 9px; }
+.platform {
+  padding: 12px 8px 14px;
+  border: 2px dashed #a282d1;
+  border-radius: 19px;
+  background: #f1e8ff;
+  min-height: 124px;
+}
+.cars { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 7px; }
+.car {
+  background: var(--blue);
+  min-width: 65px;
+  padding: 3px 12px 7px;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.car:nth-of-type(2) { background: var(--pink); }
+.car:nth-of-type(3) { background: var(--yellow); }
+.car span { display: block; font-size: clamp(30px, 9vw, 52px); font-weight: 850; line-height: 1.25; }
+.car small { font-size: 12px; }
+.car.single { min-width: 108px; padding-inline: 19px; }
+.car.single span { font-size: clamp(55px, 16vw, 88px); }
+.coupler { font-weight: 950; }
+.model { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.listen { background: var(--mint); }
+.prompt-audio { width: min(100%, 310px); background: var(--yellow); font-size: 19px; margin: 8px 0; }
+.example { margin-top: 8px; font-size: 21px; font-weight: 850; }
+.example span { font-weight: 950; }
+.answers { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px; margin-top: 9px; }
+.answer {
+  padding-inline: 1px;
+  min-height: 68px;
+  background: var(--pink);
+  font-size: clamp(20px, 6.8vw, 38px);
+  box-shadow: 0 3px 0 var(--ink);
+}
+.answer:nth-child(2) { background: var(--blue); }
+.answer:nth-child(3) { background: var(--yellow); }
+.answer.wrong { background: #f4edf3; text-decoration: line-through; color: #604d64; }
+.answer.correct { background: var(--mint); }
+.primary { width: 100%; color: white; background: var(--purple); margin-top: 13px; box-shadow: 0 3px 0 var(--ink); }
+.message { min-height: 1.5em; margin-top: 10px; font-weight: 850; }
+.audio-note { margin-top: 7px; text-align: center; font-size: 13px; }
+.trophy { font-size: 56px; }
+details { margin: 15px 3px 0; font-size: 12px; color: #4a3e62; }
+details p { margin-top: 6px; line-height: 1.5; }
+[hidden] { display: none !important; }
+</style>
+<script src="./zhuyin-audio.js" defer></script>
+<script src="./zhuyin.js" defer></script>
+</head>
+<body>
+<main>
+  <a class="back" href="./learn.html">← 回小小練習島</a>
+  <header class="hero">
+    <span class="hero-art" aria-hidden="true">🚂</span>
+    <div><h1>注音小火車</h1><p>聽一聽，跟著念，集星星到站！</p></div>
+  </header>
+  <section class="game" aria-label="注音練習">
+    <div class="stages" role="group" aria-label="選擇關卡">
+      <button class="stage stage-y" type="button" data-stage="single" aria-pressed="true"><strong>聽一聽</strong><small>單音</small></button>
+      <button class="stage stage-b" type="button" data-stage="blend" aria-pressed="false"><strong>接一接</strong><small>結合韻</small></button>
+      <button class="stage stage-p" type="button" data-stage="spell" aria-pressed="false"><strong>拼一拼</strong><small>拼音・聲調</small></button>
+    </div>
+    <div class="set-picker" id="set-picker">
+      <label for="symbol-set">選一組</label>
+      <select id="symbol-set"></select>
+    </div>
+    <details class="symbol-guide" id="symbol-guide">
+      <summary>點聽本組所有符號</summary>
+      <div class="guide-buttons" id="guide-buttons"></div>
+    </details>
+    <div class="status"><span id="round"></span><span id="stars"></span></div>
+    <progress id="progress" aria-label="到站進度" value="0" max="5"></progress>
+
+    <div class="lesson" id="lesson">
+      <h2 id="lesson-title" tabindex="-1">看符號，跟著念</h2>
+      <div class="platform">
+        <div class="cars" id="cars"></div>
+        <div class="model" id="model" hidden></div>
+        <p class="example" id="example" hidden></p>
+      </div>
+      <button class="primary" type="button" id="ready">我跟念好了</button>
+    </div>
+
+    <div class="quiz" id="quiz" hidden>
+      <h2 id="quiz-title" tabindex="-1">聽聲音，選一個</h2>
+      <button class="prompt-audio" type="button" id="hear">🔊 再聽一次</button>
+      <div class="answers" id="answers" role="group" aria-label="選答案"></div>
+      <p class="message" id="feedback" role="status"></p>
+    </div>
+
+    <div class="finished" id="finished" hidden>
+      <span class="trophy" aria-hidden="true">🚉</span>
+      <h2 id="finish-title" tabindex="-1">小火車到站了！</h2>
+      <p>你收集了 5 顆星 ⭐</p>
+      <button class="primary" type="button" id="again">再玩一次</button>
+    </div>
+    <audio id="recording" preload="none" hidden></audio>
+    <p class="audio-note" id="audio-note" role="status" hidden></p>
+    <noscript>請開啟 JavaScript 開始玩。</noscript>
+  </section>
+  <details>
+    <summary>錄音來源</summary>
+    <p>單音錄音：中華民國教育部《國語注音符號手冊》（2017），<a href="https://language.moe.gov.tw/001/Upload/files/site_content/M0001/juyin/">開放素材</a>，<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>。本站轉為 MP3。</p>
+    <p>結合韻與拼音示例：中華民國教育部（Ministry of Education, R.O.C.）<a href="https://dict.concised.moe.edu.tw/">《國語辭典簡編本》</a>（版本 2014_20260929），使用 <a href="https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/dict_concised_download.html">原始單字音檔</a>。<a href="./zhuyin-audio-license.pdf">授權使用說明（CC BY-ND 3.0 TW）</a>。</p>
+  </details>
+</main>
+</body>
+</html>

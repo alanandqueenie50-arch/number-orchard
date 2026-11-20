@@ -109,6 +109,7 @@ h1 { font-size: clamp(42px, 8.4vw, 79px); font-weight: 950; letter-spacing: -.06
   border-right: 2px solid var(--ink);
   overflow: hidden;
 }
+.game-art.train { background: #b0f1ce; }
 .game-art::before {
   content: "";
   position: absolute;
@@ -186,6 +187,15 @@ h1 { font-size: clamp(42px, 8.4vw, 79px); font-weight: 950; letter-spacing: -.06
           <p>數水果、練習加減法、收集星星。</p>
           <p class="levels">10、20、100 以內｜語音念題</p>
           <a class="play" href="./index.html" aria-label="開始玩數數小果園">開始玩 <span aria-hidden="true">→</span></a>
+        </div>
+      </article>
+      <article class="game" aria-labelledby="train-title">
+        <div class="game-art train" aria-hidden="true"><span>🚂</span></div>
+        <div class="game-info">
+          <h3 id="train-title">注音小火車</h3>
+          <p>聽發音、接結合韻、拼出聲調。</p>
+          <p class="levels">37 個注音符號｜真人錄音</p>
+          <a class="play" href="./zhuyin.html" aria-label="開始玩注音小火車">開始玩 <span aria-hidden="true">→</span></a>
         </div>
       </article>
     </div>
