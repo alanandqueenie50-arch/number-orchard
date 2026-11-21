@@ -1,223 +1,37 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant-TW">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#fffaf1">
-<meta name="description" content="小小練習島，孩子在家也能玩的練習遊戲。從數數小果園開始，練習加減法。">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fffaf0">
+<meta name="description" content="孩子的數學、英文、注音和國旗練習。">
 <title>小小練習島</title>
-<style>
-:root {
-  color-scheme: light;
-  --ink: #242246;
-  --paper: #fffaf1;
-  --yellow: #ffe36a;
-  --lilac: #ede4ff;
-  --purple: #6634c6;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  color: var(--ink);
-  background: var(--paper);
-  font-family: ui-rounded, "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
-  line-height: 1.55;
-}
-.shell { width: min(100% - 32px, 1040px); margin-inline: auto; }
-.topbar {
-  min-height: 74px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 14px;
-}
-.brand { font-weight: 900; font-size: clamp(17px, 3.8vw, 21px); }
-.brand span { margin-right: 5px; }
-a { color: inherit; }
-.topbar a {
-  font-size: 14px;
-  font-weight: 850;
-  text-decoration: none;
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  padding: 7px 13px;
-  background: #fffdf8;
-}
-a:focus-visible { outline: 3px solid #7543d1; outline-offset: 5px; }
-.hero {
-  display: grid;
-  grid-template-columns: 1.16fr 1fr;
-  align-items: center;
-  min-height: 335px;
-  padding: clamp(23px, 5vw, 53px);
-  gap: 15px;
-  border: 2px solid var(--ink);
-  border-radius: 30px;
-  background: var(--yellow);
-  box-shadow: 5px 6px 0 var(--ink);
-  overflow: hidden;
-}
-h1, h2, h3, p { margin: 0; }
-h1 { font-size: clamp(42px, 8.4vw, 79px); font-weight: 950; letter-spacing: -.06em; line-height: 1.04; }
-.hero p { font-size: clamp(15px, 2.7vw, 20px); margin-top: 15px; font-weight: 750; }
-.hero-art {
-  position: relative;
-  isolation: isolate;
-  min-height: 224px;
-  border-radius: 65% 48% 53% 54%;
-  background: #ffd1e8;
-  border: 2px solid var(--ink);
-  box-shadow: 4px 5px 0 var(--ink);
-}
-.tile {
-  display: grid;
-  place-items: center;
-  position: absolute;
-  width: clamp(56px, 11vw, 105px);
-  aspect-ratio: 1;
-  border: 2px solid var(--ink);
-  border-radius: 21px;
-  box-shadow: 3px 4px 0 var(--ink);
-  font-size: clamp(30px, 5.5vw, 66px);
-  font-weight: 950;
-  line-height: 1;
-}
-.tile-one { left: 13%; top: 20%; background: #9ce6fb; transform: rotate(-12deg); }
-.tile-plus { left: 39%; top: 9%; background: #bc9bff; transform: rotate(12deg); }
-.tile-fruit { left: 56%; top: 42%; background: #aef5bc; transform: rotate(-8deg); }
-.spark { position: absolute; font-size: clamp(25px, 4vw, 43px); font-weight: 900; color: var(--purple); }
-.spark-left { left: 20%; bottom: 5%; }
-.spark-right { right: 7%; top: 6%; }
-.collection { margin: 39px auto 45px; scroll-margin-top: 15px; }
-.collection h2 { font-size: clamp(25px, 4.5vw, 36px); margin-bottom: 13px; font-weight: 950; }
-.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 18px; }
-.game {
-  display: grid;
-  grid-template-columns: minmax(120px, .8fr) 1.2fr;
-  min-height: 213px;
-  border: 2px solid var(--ink);
-  border-radius: 24px;
-  background: #fffdfa;
-  box-shadow: 4px 5px 0 var(--ink);
-  overflow: hidden;
-}
-.game-art {
-  display: grid;
-  place-items: center;
-  position: relative;
-  background: var(--lilac);
-  border-right: 2px solid var(--ink);
-  overflow: hidden;
-}
-.game-art.train { background: #b0f1ce; }
-.game-art.english { background: #a2ddff; }
-.game-art.flags { background: #ffeaa7; }
-.game-art::before {
-  content: "";
-  position: absolute;
-  width: min(76%, 180px);
-  aspect-ratio: 1.25;
-  border-radius: 50%;
-  border: 2px dashed #9f73e3;
-  transform: rotate(-14deg);
-}
-.game-art span { position: relative; font-size: clamp(36px, 8vw, 76px); white-space: nowrap; letter-spacing: -.2em; margin-right: .2em; }
-.game-info { align-self: center; padding: clamp(13px, 3.7vw, 26px); }
-.game-info h3 { font-size: clamp(23px, 4vw, 32px); font-weight: 950; line-height: 1.15; }
-.game-info p { margin-top: 8px; font-size: 15px; }
-.game-info .levels { margin-top: 4px; font-size: 13px; font-weight: 750; color: #534666; }
-.play {
-  display: inline-flex;
-  align-items: center;
-  gap: 13px;
-  min-height: 48px;
-  margin-top: 13px;
-  padding: 5px 17px;
-  text-decoration: none;
-  color: #fff;
-  background: var(--purple);
-  border: 2px solid var(--ink);
-  border-radius: 14px;
-  box-shadow: 0 3px 0 var(--ink);
-  font-weight: 850;
-}
-.play:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
-@media (max-width: 600px) {
-  .topbar { min-height: 64px; }
-  .hero { grid-template-columns: 1fr; min-height: 0; padding-bottom: 20px; gap: 16px; }
-  .hero-art { min-height: 145px; width: min(100%, 340px); justify-self: center; }
-  .tile-fruit { left: 59%; top: 32%; }
-  .collection { margin-top: 28px; }
-}
-@media (max-width: 400px) {
-  .shell { width: calc(100% - 24px); }
-  .game { grid-template-columns: minmax(88px, .63fr) 1.37fr; min-height: 184px; }
-  .game-info p { font-size: 14px; }
-  .game-info .levels { font-size: 12px; }
-}
-</style>
+<link rel="stylesheet" href="./island-practice.css">
+<script src="./island-practice.js" defer></script>
 </head>
 <body>
-<header class="topbar shell">
-  <div class="brand"><span aria-hidden="true">🏝️</span>小小練習島</div>
-  <a href="#games">找遊戲</a>
-</header>
-
-<main class="shell">
-  <section class="hero" aria-labelledby="hero-title">
-    <div>
-      <h1 id="hero-title">小小練習島</h1>
-      <p>挑一個遊戲，玩著學！</p>
-    </div>
-    <div class="hero-art" aria-hidden="true">
-      <span class="tile tile-one">1</span>
-      <span class="tile tile-plus">+</span>
-      <span class="tile tile-fruit">🍓</span>
-      <span class="spark spark-left">✦</span>
-      <span class="spark spark-right">✧</span>
+<header class="nav wrap"><a class="brand" href="./learn.html"><span aria-hidden="true">🏝️</span> 小小練習島</a><a href="#games">遊戲區 ↓</a></header>
+<main class="wrap" data-view="home">
+  <section class="landing" aria-labelledby="title">
+    <div><h1 id="title">小小練習島</h1><p>每天選一點練，懂了就多走一步。</p><a class="button primary" href="./practice.html?subject=math">開始今日練習 →</a></div>
+    <div class="cover-art" aria-hidden="true"><div class="art-math">7+3</div><div class="art-english" lang="en">cat</div><div class="art-pencil">✏️</div></div>
+  </section>
+  <section class="daily" aria-labelledby="daily-title">
+    <div><h2 id="daily-title">今日練習</h2><p id="daily-copy" aria-live="polite">完成數學和英文各一回合。</p></div>
+    <progress id="daily-progress" max="2" value="0" aria-label="今日科目完成數"></progress>
+  </section>
+  <section aria-labelledby="routes-title">
+    <h2 id="routes-title">選一條學習路線</h2>
+    <div class="routes">
+      <a class="route math" href="./practice.html?subject=math"><span class="stamp" aria-hidden="true">＋</span><strong>數學練習本</strong><span>數字順序 · 合十 · 加減法</span><span class="route-action">選單元 →</span></a>
+      <a class="route literacy" href="./practice.html?subject=english"><span class="stamp" aria-hidden="true" lang="en">Aa</span><strong>英文練習本</strong><span>拼讀 · 常見字 · 聽寫 · 短句</span><span class="route-action">選單元 →</span></a>
     </div>
   </section>
-
-  <section class="collection" id="games" aria-labelledby="games-title">
-    <h2 id="games-title">選一個來玩</h2>
+  <section id="games" class="separate" aria-labelledby="games-title">
+    <h2 id="games-title">遊戲區</h2>
     <div class="games">
-      <!-- Add future practice games here as more game cards. -->
-      <article class="game" aria-labelledby="orchard-title">
-        <div class="game-art" aria-hidden="true"><span>🍎🍊</span></div>
-        <div class="game-info">
-          <h3 id="orchard-title">數數小果園</h3>
-          <p>數水果、練習加減法、收集星星。</p>
-          <p class="levels">10、20、100 以內｜語音念題</p>
-          <a class="play" href="./index.html" aria-label="開始玩數數小果園">開始玩 <span aria-hidden="true">→</span></a>
-        </div>
-      </article>
-      <article class="game" aria-labelledby="train-title">
-        <div class="game-art train" aria-hidden="true"><span>🚂</span></div>
-        <div class="game-info">
-          <h3 id="train-title">注音小火車</h3>
-          <p>聽發音、接結合韻、拼出聲調。</p>
-          <p class="levels">37 個注音符號｜真人錄音</p>
-          <a class="play" href="./zhuyin.html" aria-label="開始玩注音小火車">開始玩 <span aria-hidden="true">→</span></a>
-        </div>
-      </article>
-      <article class="game" aria-labelledby="english-title">
-        <div class="game-art english" aria-hidden="true"><span>🧭</span></div>
-        <div class="game-info">
-          <h3 id="english-title">英文單字探險</h3>
-          <p>看圖跟念、聽音選圖、短句填空。</p>
-          <p class="levels">100 個基礎單字｜小一入門</p>
-          <a class="play" href="./english.html" aria-label="開始玩英文單字探險">開始玩 <span aria-hidden="true">→</span></a>
-        </div>
-      </article>
-      <article class="game" aria-labelledby="flags-title">
-        <div class="game-art flags" aria-hidden="true"><span>🌍</span></div>
-        <div class="game-info">
-          <h3 id="flags-title">國旗小旅行</h3>
-          <p>看國旗、認國名、收集旅行印章。</p>
-          <p class="levels">32 面國旗｜中英文國名</p>
-          <a class="play" href="./flags.html" aria-label="開始玩國旗小旅行">開始玩 <span aria-hidden="true">→</span></a>
-        </div>
-      </article>
+      <a class="game-card" href="./index.html"><span aria-hidden="true">🍎</span><strong>數數小果園</strong><small>看水果練加減法</small></a>
+      <a class="game-card" href="./zhuyin.html"><span aria-hidden="true">🚂</span><strong>注音小火車</strong><small>聽 37 個注音與拼讀</small></a>
+      <a class="game-card" href="./english.html"><span aria-hidden="true">🧭</span><strong>英文單字探險</strong><small>100 個小一入門單字</small></a>
+      <a class="game-card" href="./flags.html"><span aria-hidden="true">🌍</span><strong>國旗小旅行</strong><small>32 面國旗與雙語發音</small></a>
     </div>
   </section>
 </main>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fffaf0">
+<title>分級練習｜小小練習島</title>
+<link rel="stylesheet" href="./island-practice.css">
+<script src="./english-audio.js?v=grade1" defer></script>
+<script src="./island-practice.js" defer></script>
+</head>
+<body>
+<header class="nav wrap"><a class="brand" href="./learn.html">← 小小練習島</a><nav aria-label="練習科目"><a id="math-tab" href="./practice.html?subject=math">數學</a><a id="english-tab" href="./practice.html?subject=english">英文</a></nav></header>
+<main class="wrap book" data-view="practice">
+  <header class="book-header"><h1 id="book-title">練習本</h1><p id="book-description">先選一個單元。</p></header>
+  <section id="unit-list" class="units" aria-label="選擇單元"></section>
+  <section id="exercise" class="paper" aria-label="作答區" hidden>
+    <div class="paper-top"><span id="steps"></span><span id="timer" aria-label="已練習時間">00:00</span></div>
+    <progress id="question-progress" max="5" value="0" aria-label="答題進度"></progress>
+    <h2 id="question" tabindex="-1"></h2>
+    <p id="hint"></p>
+    <button id="listen" type="button" hidden>🔊 聽發音</button>
+    <p id="audio-error" role="status" hidden>暫時無法播放，請再試一次。</p>
+    <audio id="recording" hidden preload="none"></audio>
+    <div id="visual" aria-hidden="true"></div>
+    <details id="writing" open>
+      <summary>✏️ 手寫練習</summary>
+      <div class="writing-frame"><canvas id="canvas" width="780" height="180" aria-label="手寫草稿區"></canvas></div>
+      <div class="writing-tools"><small>可用手指或觸控筆寫。用下方答案欄或選項批改。</small><button id="clear" type="button">清除手寫</button></div>
+    </details>
+    <form id="answer-form" hidden novalidate>
+      <label for="answer" id="answer-label">輸入答案</label>
+      <div class="answer-row"><input id="answer" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"><button class="primary" type="submit">檢查</button></div>
+    </form>
+    <div id="choices" class="choices" role="group" aria-label="選答案" hidden></div>
+    <p id="feedback" role="status"></p>
+    <button class="primary" id="advance" type="button" hidden>下一題 →</button>
+  </section>
+  <section id="result" class="paper results" hidden>
+    <h2 id="result-title" tabindex="-1">練習完成！</h2>
+    <p id="result-copy"></p>
+    <button class="warn" id="retry" type="button" hidden>訂正錯題</button>
+    <button id="another" type="button">回單元選單</button>
+  </section>
+  <noscript>請開啟 JavaScript 以使用練習本。</noscript>
+</main>
+</body>
+</html>
